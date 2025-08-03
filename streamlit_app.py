@@ -3,6 +3,8 @@ import openai
 from datetime import datetime
 import fitz  # PyMuPDF for PDF
 from docx import Document
+from openai import OpenAI
+
 
 # ----------------------
 # Helper functions
@@ -84,11 +86,14 @@ if run:
             # プロンプト組み立て
             prompt = build_prompt(case_no, client, project, bp, candidate_info, doc_text)
             # ChatGPT API呼び出し
-            response = openai.ChatCompletion.create(
-                model="gpt-4o-mini",
+            client = OpenAI()  # ← 自動でAPIキーを読み込む（Secrets or 環境変数）
+
+            response = client.chat.completions.create(
+                model="gpt-4o",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.2,
             )
+
             resp_text = response.choices[0].message.content
             # レスポンス解析
             score, comment, proposal = parse_response(resp_text)
